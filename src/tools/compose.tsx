@@ -75,7 +75,7 @@ export function BookletScreen() {
   return (
     <OneFileRangeScreen
       title="Booklet imposition"
-      hint="Reorders pages for saddle-stitch duplex printing: [last,1] then [2,last-1] pairs on landscape sheets. Set your printer to print on both sides, flip on short edge."
+      hint="Reorders pages for saddle-stitch duplex printing, [last,1] then [2,last-1] pairs on landscape sheets. Set your printer to print on both sides, flip on short edge."
       form={(
         <Labeled label="If page count is not a multiple of 4">
           <select value={pad ? 'pad' : 'fail'} onChange={(e) => setPad(e.target.value === 'pad')}>

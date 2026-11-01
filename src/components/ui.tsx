@@ -41,7 +41,7 @@ export function OutputNameField({ value, onChange, label = 'Output file name (op
   label?: string
 }) {
   return (
-    <Labeled label={`${label} — leave empty for the auto name`}>
+    <Labeled label={`${label} (leave empty for the auto name)`}>
       <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="auto" />
     </Labeled>
   )
@@ -71,7 +71,7 @@ export function ResultBox({ result, zipName = 'output.zip' }: { result: { name: 
   return (
     <div className="result">
       <p>
-        Done: {result.length} file{result.length > 1 ? 's' : ''} ({formatBytes(result.reduce((a, r) => a + r.data.byteLength, 0))})
+        Done. {result.length} file{result.length > 1 ? 's' : ''} ({formatBytes(result.reduce((a, r) => a + r.data.byteLength, 0))})
       </p>
       <ol>
         {result.map((r) => (

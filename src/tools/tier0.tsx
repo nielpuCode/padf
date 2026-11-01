@@ -117,7 +117,7 @@ export function CompressScreen() {
   }
   return (
     <form onSubmit={submit} className="tool">
-      <p className="hint">Re-renders every page as an image: real size reduction, but text is no longer selectable.</p>
+      <p className="hint">Re-renders every page as an image. Real size reduction, but text is no longer selectable.</p>
       <Files files={files} onChange={(f) => { setFiles(f); if (fileIdx >= f.length) setFileIdx(Math.max(0, f.length - 1)) }} accept=".pdf" />
       {files.length > 0 && (
         <>
@@ -187,7 +187,7 @@ export function PasswordScreen() {
           <Labeled label="User password (to open)">
             <input type="password" value={userPw} onChange={(e) => setUserPw(e.target.value)} required />
           </Labeled>
-          <Labeled label="Owner password (permissions; optional, defaults to user password)">
+          <Labeled label="Owner password (permissions, optional, defaults to user password)">
             <input type="password" value={ownerPw} onChange={(e) => setOwnerPw(e.target.value)} />
           </Labeled>
           <fieldset>

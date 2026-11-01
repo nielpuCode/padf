@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import type { Icon } from '@phosphor-icons/react'
 import {
@@ -13,39 +13,40 @@ import { InsertScreen, NUpScreen, BookletScreen } from './tools/compose'
 import { ImagesToPdfScreen, PdfToImagesScreen, BasicCompressScreen } from './tools/media'
 import { PageNumbersScreen, HeaderFooterScreen, WatermarkScreen } from './tools/annotate'
 
-type Group = 'Tier 0 — core' | 'Tier 1 — pages' | 'Tier 1 — layout' | 'Tier 1 — media' | 'Tier 1 — annotate'
+type Group = 'core' | 'pages' | 'layout' | 'media' | 'annotate'
+type GroupMeta = { tier: string; label: string; look: string }
+const GROUPS: Record<Group, GroupMeta> = {
+  core: { tier: 'Tier 0', label: 'Core', look: 'bg-[#E1F3FE] text-[#1F6C9F]' },
+  pages: { tier: 'Tier 1', label: 'Pages', look: 'bg-[#EDF3EC] text-[#346538]' },
+  layout: { tier: 'Tier 1', label: 'Layout', look: 'bg-[#FBF3DB] text-[#956400]' },
+  media: { tier: 'Tier 1', label: 'Media', look: 'bg-[#FDEBEC] text-[#9F2F2D]' },
+  annotate: { tier: 'Tier 1', label: 'Annotate', look: 'bg-[#F1F1EF] text-muted' },
+}
+
 type Tool = { id: string; name: string; group: Group; icon: Icon; desc: string }
 
 const TOOLS: Tool[] = [
-  { id: 'merge', name: 'Merge PDFs', group: 'Tier 0 — core', icon: Stack, desc: 'Combine several PDFs into one, in your chosen order' },
-  { id: 'split', name: 'Split PDF', group: 'Tier 0 — core', icon: Scissors, desc: 'Break one PDF into parts by pages, ranges or size' },
-  { id: 'compress-flatten', name: 'Compress (flatten)', group: 'Tier 0 — core', icon: ArrowsIn, desc: 'Render pages as images for real size reduction' },
-  { id: 'compress-basic', name: 'Recompress (basic)', group: 'Tier 0 — core', icon: Broom, desc: 'Lossless re-save; small gains, text stays text' },
-  { id: 'protect', name: 'Password protect', group: 'Tier 0 — core', icon: LockKey, desc: 'AES-256 password with permissions' },
-  { id: 'unlock', name: 'Remove password', group: 'Tier 0 — core', icon: LockKeyOpen, desc: 'Remove a password you already know' },
-  { id: 'extract', name: 'Extract pages', group: 'Tier 1 — pages', icon: Export, desc: 'Copy selected pages into a new PDF' },
-  { id: 'delete', name: 'Delete pages', group: 'Tier 1 — pages', icon: TrashSimple, desc: 'Remove pages and keep the rest' },
-  { id: 'reorder', name: 'Reorder pages', group: 'Tier 1 — pages', icon: ArrowsDownUp, desc: 'Rearrange pages into any order you type' },
-  { id: 'rotate', name: 'Rotate pages', group: 'Tier 1 — pages', icon: ArrowClockwise, desc: 'Turn pages by 90, 180 or 270 degrees' },
-  { id: 'crop', name: 'Crop pages', group: 'Tier 1 — pages', icon: Crop, desc: 'Trim page edges in points' },
-  { id: 'resize', name: 'Resize pages', group: 'Tier 1 — pages', icon: FrameCorners, desc: 'Scale content onto A4, Letter, A5 or A3' },
-  { id: 'insert', name: 'Insert another PDF', group: 'Tier 1 — layout', icon: PlusSquare, desc: 'Place another PDF at any page position' },
-  { id: 'nup', name: 'N-up pages per sheet', group: 'Tier 1 — layout', icon: SquaresFour, desc: 'Put 2, 4 or 6 pages on one sheet' },
-  { id: 'booklet', name: 'Booklet imposition', group: 'Tier 1 — layout', icon: BookOpen, desc: 'Reorder pages for saddle-stitch duplex printing' },
-  { id: 'images-to-pdf', name: 'Images to PDF', group: 'Tier 1 — media', icon: ImageSquare, desc: 'Turn JPG or PNG files into one PDF' },
-  { id: 'pdf-to-images', name: 'PDF to images', group: 'Tier 1 — media', icon: FileImage, desc: 'Render pages to PNG or JPEG at chosen DPI' },
-  { id: 'numbers', name: 'Page numbers', group: 'Tier 1 — annotate', icon: Hash, desc: 'Stamp {page} {total} numbering on pages' },
-  { id: 'header-footer', name: 'Header and footer', group: 'Tier 1 — annotate', icon: Rows, desc: 'Running headers and footers with tokens' },
-  { id: 'watermark', name: 'Watermark', group: 'Tier 1 — annotate', icon: Drop, desc: 'Cover pages with a faded text mark' },
+  { id: 'merge', name: 'Merge PDFs', group: 'core', icon: Stack, desc: 'Combine several PDFs into one, in your chosen order' },
+  { id: 'split', name: 'Split PDF', group: 'core', icon: Scissors, desc: 'Break one PDF into parts by pages, ranges or size' },
+  { id: 'compress-flatten', name: 'Compress (flatten)', group: 'core', icon: ArrowsIn, desc: 'Render pages as images for real size reduction' },
+  { id: 'compress-basic', name: 'Recompress (basic)', group: 'core', icon: Broom, desc: 'Lossless re-save. Small gains, text stays text' },
+  { id: 'protect', name: 'Password protect', group: 'core', icon: LockKey, desc: 'AES-256 password with permissions' },
+  { id: 'unlock', name: 'Remove password', group: 'core', icon: LockKeyOpen, desc: 'Remove a password you already know' },
+  { id: 'extract', name: 'Extract pages', group: 'pages', icon: Export, desc: 'Copy selected pages into a new PDF' },
+  { id: 'delete', name: 'Delete pages', group: 'pages', icon: TrashSimple, desc: 'Remove pages and keep the rest' },
+  { id: 'reorder', name: 'Reorder pages', group: 'pages', icon: ArrowsDownUp, desc: 'Rearrange pages into any order you type' },
+  { id: 'rotate', name: 'Rotate pages', group: 'pages', icon: ArrowClockwise, desc: 'Turn pages by 90, 180 or 270 degrees' },
+  { id: 'crop', name: 'Crop pages', group: 'pages', icon: Crop, desc: 'Trim page edges in points' },
+  { id: 'resize', name: 'Resize pages', group: 'pages', icon: FrameCorners, desc: 'Scale content onto A4, Letter, A5 or A3' },
+  { id: 'insert', name: 'Insert another PDF', group: 'layout', icon: PlusSquare, desc: 'Place another PDF at any page position' },
+  { id: 'nup', name: 'N-up pages per sheet', group: 'layout', icon: SquaresFour, desc: 'Put 2, 4 or 6 pages on one sheet' },
+  { id: 'booklet', name: 'Booklet imposition', group: 'layout', icon: BookOpen, desc: 'Reorder pages for saddle-stitch duplex printing' },
+  { id: 'images-to-pdf', name: 'Images to PDF', group: 'media', icon: ImageSquare, desc: 'Turn JPG or PNG files into one PDF' },
+  { id: 'pdf-to-images', name: 'PDF to images', group: 'media', icon: FileImage, desc: 'Render pages to PNG or JPEG at chosen DPI' },
+  { id: 'numbers', name: 'Page numbers', group: 'annotate', icon: Hash, desc: 'Stamp {page} {total} numbering on pages' },
+  { id: 'header-footer', name: 'Header and footer', group: 'annotate', icon: Rows, desc: 'Running headers and footers with tokens' },
+  { id: 'watermark', name: 'Watermark', group: 'annotate', icon: Drop, desc: 'Cover pages with a faded text mark' },
 ]
-
-const GROUP_LOOK: Record<Group, string> = {
-  'Tier 0 — core': 'bg-[#E1F3FE] text-[#1F6C9F]',
-  'Tier 1 — pages': 'bg-[#EDF3EC] text-[#346538]',
-  'Tier 1 — layout': 'bg-[#FBF3DB] text-[#956400]',
-  'Tier 1 — media': 'bg-[#FDEBEC] text-[#9F2F2D]',
-  'Tier 1 — annotate': 'bg-[#F1F1EF] text-muted',
-}
 
 const SCREENS: Record<string, React.ComponentType> = {
   merge: MergeScreen, split: SplitScreen, 'compress-flatten': CompressScreen,
@@ -63,18 +64,19 @@ function currentTool(): string | null {
 
 const enter = { opacity: 0, y: 12 }
 const show = { opacity: 1, y: 0 }
+const EASE = [0.16, 1, 0.3, 1] as const
 
 const heroMotion = (delay: number) => ({
   initial: enter,
   animate: show,
-  transition: { delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
+  transition: { delay, duration: 0.55, ease: EASE },
 })
 
 function ToolList() {
   const [query, setQuery] = useState('')
   const q = query.trim().toLowerCase()
   const visible = (t: Tool) => !q || `${t.name} ${t.desc}`.toLowerCase().includes(q)
-  const groups = ([...new Set(TOOLS.map((t) => t.group))] as Group[]).filter((g) =>
+  const groups = (Object.keys(GROUPS) as Group[]).filter((g) =>
     TOOLS.some((t) => t.group === g && visible(t)),
   )
   return (
@@ -95,8 +97,8 @@ function ToolList() {
           PDF tools that never leave your device.
         </p>
         <p className="mt-2 max-w-xl text-sm text-muted">
-          Merge, split, compress, protect and {TOOLS.length - 6} more operations — everything runs in
-          your browser. No upload, no account, no queue.
+          Merge, split, compress, protect and {TOOLS.length - 6} more operations, all in your
+          browser. No upload, no account, no queue.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="chip">
@@ -137,7 +139,7 @@ function ToolList() {
         <input
           type="text"
           className="tool-search"
-          placeholder={`Search ${TOOLS.length} tools…`}
+          placeholder={`Search ${TOOLS.length} tools...`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -146,10 +148,10 @@ function ToolList() {
       {groups.map((g) => (
         <section key={g} className="mb-8 mt-8">
           <h3 className="mb-2 flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-[0.06em] uppercase ${GROUP_LOOK[g].split(' ')[0]} ${GROUP_LOOK[g].split(' ')[1]}`}>
-              {g.split(' — ')[1]}
+            <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-[0.06em] uppercase ${GROUPS[g].look}`}>
+              {GROUPS[g].label}
             </span>
-            {g.split(' — ')[0]}
+            {GROUPS[g].tier}
           </h3>
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {TOOLS.filter((t) => t.group === g && visible(t)).map((t, i) => (
@@ -157,13 +159,13 @@ function ToolList() {
                 key={t.id}
                 initial={enter}
                 animate={show}
-                transition={{ delay: 0.03 * i, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.03 * i, duration: 0.5, ease: EASE }}
               >
                 <a
                   href={`#/${t.id}`}
                   className="group flex h-full gap-3 rounded-lg border border-line bg-surface p-4 transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] active:scale-[0.99]"
                 >
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${GROUP_LOOK[t.group]}`}>
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${GROUPS[t.group].look}`}>
                     <t.icon size={18} weight="bold" />
                   </span>
                   <span className="min-w-0">
@@ -176,7 +178,7 @@ function ToolList() {
           </ul>
         </section>
       ))}
-      {q && groups.length === 0 && <p className="hint mt-8">No tool matches “{query}”.</p>}
+      {q && groups.length === 0 && <p className="hint mt-8">No tool matches "{query}".</p>}
     </main>
   )
 }
@@ -188,7 +190,7 @@ function ToolPage({ id }: { id: string }) {
     <main className="tool-wrap">
       <a href="#/" className="text-sm text-muted transition hover:text-ink">&larr; All tools</a>
       <div className="mt-3 flex items-center gap-3">
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${GROUP_LOOK[tool.group]}`}>
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${GROUPS[tool.group].look}`}>
           <tool.icon size={20} weight="bold" />
         </span>
         <div className="min-w-0">
@@ -218,7 +220,7 @@ export default function App() {
             initial={enter}
             animate={show}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.35, ease: EASE }}
           >
             <ToolPage id={active} />
           </motion.div>
@@ -228,7 +230,7 @@ export default function App() {
             initial={enter}
             animate={show}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.35, ease: EASE }}
           >
             <ToolList />
           </motion.div>

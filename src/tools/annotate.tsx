@@ -52,7 +52,7 @@ export function HeaderFooterScreen() {
   return (
     <OneFileRangeScreen
       title="Header and footer"
-      hint="Tokens: {page} {total}"
+      hint="Tokens {page} {total}"
       form={(
         <>
           <Labeled label="Header left"><input type="text" value={opts.headerLeft} onChange={(e) => setOpts({ ...opts, headerLeft: e.target.value })} /></Labeled>
