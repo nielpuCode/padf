@@ -3,7 +3,7 @@ import { savePdf, pdfPageCount } from '../lib/pdf'
 import { stripExtension } from '../lib/zip'
 import { extractPages, deletePages, reorderPages, rotatePages } from '../lib/ops/pages'
 import { cropPages, resizePages, type Margins } from '../lib/ops/layout'
-import { useResult, Files, Labeled, RunButton, ErrorBox, ResultBox, type LoadedFile } from '../components/ui'
+import { useResult, Files, Labeled, RunButton, ErrorBox, ResultBox, OutputNameField, finalName, type LoadedFile } from '../components/ui'
 
 // Shared single-file picker with page count readout.
 function PickOne({ files, setFiles, fileIdx, setFileIdx, accept = '.pdf' }: {
@@ -45,7 +45,6 @@ async function runForFile(
 export function OneFileRangeScreen(props: {
   title: string
   hint?: string
-  needsPassword?: boolean
   accept?: string
   form: React.ReactNode
   run: (bytes: Uint8Array, password: string | undefined) => Promise<{ data: Uint8Array; extra?: string }>
@@ -53,16 +52,19 @@ export function OneFileRangeScreen(props: {
   const [files, setFiles] = useState<LoadedFile[]>([])
   const [fileIdx, setFileIdx] = useState(0)
   const [password, setPassword] = useState('')
+  const [outName, setOutName] = useState('')
   const { result, error, busy, run } = useResult()
   const selected = files[fileIdx]
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const pw = password || undefined
-    run(async () => runForFile(selected, (bytes) => props.run(bytes, pw)))
+    run(async () => {
+      const out = await runForFile(selected, (bytes) => props.run(bytes, pw))
+      return [{ ...out[0], name: finalName(outName, out[0].name) }]
+    })
   }
   return (
     <form onSubmit={submit} className="tool">
-      <h2>{props.title}</h2>
       {props.hint && <p className="hint">{props.hint}</p>}
       <PickOne files={files} setFiles={setFiles} fileIdx={fileIdx} setFileIdx={setFileIdx} accept={props.accept} />
       {files.length > 0 && (
@@ -71,6 +73,7 @@ export function OneFileRangeScreen(props: {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </Labeled>
           {props.form}
+          <OutputNameField value={outName} onChange={setOutName} />
         </>
       )}
       <RunButton busy={busy}>Run</RunButton>

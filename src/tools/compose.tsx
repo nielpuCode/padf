@@ -5,7 +5,7 @@ import { insertInto } from '../lib/ops/pages'
 import { nUp, booklet } from '../lib/ops/layout'
 import { OneFileRangeScreen } from './geometry'
 import {
-  useResult, Files, Labeled, RunButton, ErrorBox, ResultBox, type LoadedFile,
+  useResult, useOutputName, finalName, Files, Labeled, RunButton, ErrorBox, ResultBox, OutputNameField, type LoadedFile,
 } from '../components/ui'
 
 // ---------- Insert PDF into another ----------
@@ -15,6 +15,7 @@ export function InsertScreen() {
   const [src, setSrc] = useState<LoadedFile[]>([])
   const [position, setPosition] = useState('1')
   const [srcSpec, setSrcSpec] = useState('')
+  const [outName, setOutName] = useOutputName()
   const { result, error, busy, run } = useResult()
 
   const submit = (e: React.FormEvent) => {
@@ -24,18 +25,18 @@ export function InsertScreen() {
     if (!dstFile || !srcFile) return run(async () => { throw new Error('Choose both a main PDF and a PDF to insert') })
     run(async () => {
       const doc = await insertInto(dstFile.bytes, srcFile.bytes, parseInt(position, 10) || 1, srcSpec.trim() || undefined)
-      return [{ name: `${stripExtension(dstFile.name)}-combined.pdf`, data: await savePdf(doc) }]
+      return [{ name: finalName(outName, `${stripExtension(dstFile.name)}-combined.pdf`), data: await savePdf(doc) }]
     })
   }
   return (
     <form onSubmit={submit} className="tool">
-      <h2>Insert another PDF</h2>
       <Labeled label="Main PDF"><Files files={dst} onChange={setDst} accept=".pdf" /></Labeled>
       <Labeled label="PDF to insert"><Files files={src} onChange={setSrc} accept=".pdf" /></Labeled>
       {dst.length > 0 && src.length > 0 && (
         <>
           <Labeled label="Insert before page (1 = start)"><input type="number" min="1" value={position} onChange={(e) => setPosition(e.target.value)} /></Labeled>
           <Labeled label="Pages to insert (empty = all)"><input type="text" value={srcSpec} onChange={(e) => setSrcSpec(e.target.value)} placeholder="1-3" /></Labeled>
+          <OutputNameField value={outName} onChange={setOutName} />
         </>
       )}
       <RunButton busy={busy}>Insert</RunButton>

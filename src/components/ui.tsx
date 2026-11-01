@@ -33,14 +33,39 @@ export function useResult() {
   return { result, error, busy, progress, setProgress, setError, run }
 }
 
-export function ResultBox({ result }: { result: { name: string; data: Uint8Array }[] | null }) {
+// ---------- output naming ----------
+
+export function OutputNameField({ value, onChange, label = 'Output file name (optional)' }: {
+  value: string
+  onChange: (v: string) => void
+  label?: string
+}) {
+  return (
+    <Labeled label={`${label} — leave empty for the auto name`}>
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="auto" />
+    </Labeled>
+  )
+}
+
+// User name wins; appends defaultExt only when the user gave no extension.
+export function finalName(value: string | undefined, fallback: string, defaultExt = 'pdf'): string {
+  const t = value?.trim()
+  if (!t) return fallback
+  return /\.[a-z0-9]{1,5}$/i.test(t) ? t : `${t}.${defaultExt}`
+}
+
+export function useOutputName() {
+  return useState('')
+}
+
+export function ResultBox({ result, zipName = 'output.zip' }: { result: { name: string; data: Uint8Array }[] | null; zipName?: string }) {
   if (!result) return null
   const download = () => {
     if (result.length === 1) {
       downloadBlob(result[0].data, result[0].name)
     } else {
-      const zip = zipFiles(result.map((r) => ({ name: r.name, data: r.data })))
-      downloadBlob(zip, 'output.zip')
+      const zip = zipFiles(result.map((r) => ({ name: sanitizeFilename(r.name), data: r.data })))
+      downloadBlob(zip, zipName)
     }
   }
   return (

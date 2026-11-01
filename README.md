@@ -54,6 +54,10 @@ bun run build    # typecheck + production build to dist/
 
 Already wired for Vercel static hosting: push this folder to your GitHub repo, import the repo in Vercel. `vercel.json` sets `bun run build` and serves `dist/`. No functions, no storage — everything is static.
 
+## Notes
+
+- Every tool can name its own output file; leave the field empty for the auto name. Multi-file results (split, PDF to images) arrive as a ZIP, and its name is yours to set too.
+
 ## Known limits
 
 - Compress has no native image pipeline, so flatten conversion is the only strong option; text becomes pixels. Upgrade path: a Ghostscript worker would preserve text.
