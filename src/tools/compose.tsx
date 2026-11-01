@@ -36,7 +36,7 @@ export function InsertScreen() {
         <>
           <Labeled label="Insert before page (1 = start)"><input type="number" min="1" value={position} onChange={(e) => setPosition(e.target.value)} /></Labeled>
           <Labeled label="Pages to insert (empty = all)"><input type="text" value={srcSpec} onChange={(e) => setSrcSpec(e.target.value)} placeholder="1-3" /></Labeled>
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(dst[0].name)}-combined.pdf`} />
         </>
       )}
       <RunButton busy={busy}>Insert</RunButton>
@@ -52,7 +52,7 @@ export function NUpScreen() {
   const [per, setPer] = useState(2)
   return (
     <OneFileRangeScreen
-      title="N-up pages per sheet"
+      suffix={`-${per}up`}
       hint="Puts several pages onto one larger sheet, keeping aspect."
       form={(
         <Labeled label="Pages per sheet">
@@ -63,7 +63,7 @@ export function NUpScreen() {
           </select>
         </Labeled>
       )}
-      run={(bytes) => nUp(bytes, per as 2 | 4 | 6).then((d) => savePdf(d).then((data) => ({ data, extra: `-${per}up` })))}
+      run={(bytes) => nUp(bytes, per as 2 | 4 | 6).then((d) => savePdf(d))}
     />
   )
 }
@@ -74,7 +74,7 @@ export function BookletScreen() {
   const [pad, setPad] = useState(true)
   return (
     <OneFileRangeScreen
-      title="Booklet imposition"
+      suffix="-booklet"
       hint="Reorders pages for saddle-stitch duplex printing, [last,1] then [2,last-1] pairs on landscape sheets. Set your printer to print on both sides, flip on short edge."
       form={(
         <Labeled label="If page count is not a multiple of 4">
@@ -84,7 +84,7 @@ export function BookletScreen() {
           </select>
         </Labeled>
       )}
-      run={(bytes) => booklet(bytes, pad).then((d) => savePdf(d).then((data) => ({ data, extra: '-booklet' })))}
+      run={(bytes) => booklet(bytes, pad).then((d) => savePdf(d))}
     />
   )
 }

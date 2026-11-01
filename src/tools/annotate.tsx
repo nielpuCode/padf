@@ -12,7 +12,7 @@ export function PageNumbersScreen() {
   const s = Number(opts.start), f = Number(opts.font), m = Number(opts.margin)
   return (
     <OneFileRangeScreen
-      title="Page numbers"
+      suffix="-numbered"
       form={(
         <>
           <Labeled label="Start numbering at"><input type="number" min="0" value={opts.start} onChange={(e) => setOpts({ ...opts, start: e.target.value })} /></Labeled>
@@ -37,7 +37,7 @@ export function PageNumbersScreen() {
       run={async (bytes, pw) => {
         if (!opts.format) throw new Error('Format is required')
         const doc = await addPageNumbers(bytes, { start: s, format: opts.format, font: f, margin: m, position: opts.position, align: opts.align } satisfies NumberOptions, pw)
-        return { data: await savePdf(doc), extra: '-numbered' }
+        return { data: await savePdf(doc) }
       }}
     />
   )
@@ -51,7 +51,7 @@ export function HeaderFooterScreen() {
   })
   return (
     <OneFileRangeScreen
-      title="Header and footer"
+      suffix="-annotated"
       hint="Tokens {page} {total}"
       form={(
         <>
@@ -69,7 +69,7 @@ export function HeaderFooterScreen() {
         const filled = Object.fromEntries(Object.entries(opts).filter(([k, v]) => v !== '' && k !== 'font' && k !== 'margin'))
         if (!Object.keys(filled).length) throw new Error('Fill at least one field')
         const doc = await addHeaderFooter(bytes, { ...filled, font: Number(opts.font), margin: Number(opts.margin) } as unknown as HeaderFooterOptions, pw)
-        return { data: await savePdf(doc), extra: '-annotated' }
+        return { data: await savePdf(doc) }
       }}
     />
   )
@@ -81,7 +81,7 @@ export function WatermarkScreen() {
   })
   return (
     <OneFileRangeScreen
-      title="Watermark (text)"
+      suffix="-watermarked"
       hint={'Font size is a fraction of page width unless "absolute pt" is chosen.'}
       form={(
         <>
@@ -110,7 +110,7 @@ export function WatermarkScreen() {
           fontSizeIsFraction: opts.fontSizeIsFraction,
         }
         const doc = await addTextWatermark(bytes, w, pw)
-        return { data: await savePdf(doc), extra: '-watermarked' }
+        return { data: await savePdf(doc) }
       }}
     />
   )

@@ -23,7 +23,8 @@ export function MergeScreen() {
     }
     run(async () => {
       const doc = await mergePdfs(files.map((f, i) => ({ bytes: f.bytes, rangeSpec: rangeList[i] || undefined })))
-      return [{ name: finalName(outName, 'merged.pdf'), data: await savePdf(doc) }]
+      const suggest = `${stripExtension(files[0].name)}-merged.pdf`
+      return [{ name: finalName(outName, suggest), data: await savePdf(doc) }]
     })
   }
   return (
@@ -32,7 +33,7 @@ export function MergeScreen() {
       <Labeled label="Optional page ranges, comma separated, matching each file (e.g. 1-3, ,5-)">
         <input type="text" value={ranges} onChange={(e) => setRanges(e.target.value)} placeholder="1-3, ,5-" />
       </Labeled>
-      {files.length > 0 && <OutputNameField value={outName} onChange={setOutName} />}
+      {files.length > 0 && <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(files[0].name)}-merged.pdf`} />}
       <RunButton busy={busy}>Merge</RunButton>
       <ErrorBox error={error} />
       <ResultBox result={result} />
@@ -86,7 +87,12 @@ export function SplitScreen() {
             <input type="text" required value={param} onChange={(e) => setParam(e.target.value)} />
           </Labeled>
           {mode === 'every' && <p className="hint">Output file names use page ranges.</p>}
-          <OutputNameField value={outName} onChange={setOutName} label={mode === 'every' ? 'ZIP name for multi-part output' : 'Output file name'} />
+          <OutputNameField
+            value={outName}
+            onChange={setOutName}
+            label={mode === 'every' ? 'ZIP name for multi-part output' : 'Output file name'}
+            suggest={mode === 'every' ? zipName : `${selected ? stripExtension(selected.name) : 'output'}-split.pdf`}
+          />
         </>
       )}
       <RunButton busy={busy}>Split</RunButton>
@@ -133,7 +139,7 @@ export function CompressScreen() {
               <option value="high">High quality (150 dpi)</option>
             </select>
           </Labeled>
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(selected.name)}-compressed.pdf`} />
         </>
       )}
       <RunButton busy={busy}>Compress</RunButton>
@@ -196,7 +202,7 @@ export function PasswordScreen() {
             <label><input type="checkbox" checked={copying} onChange={(e) => setCopying(e.target.checked)} /> Copy text</label>
             <label><input type="checkbox" checked={modifying} onChange={(e) => setModifying(e.target.checked)} /> Modify</label>
           </fieldset>
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(selected.name)}-protected.pdf`} />
         </>
       )}
       <RunButton busy={busy}>Protect</RunButton>
@@ -240,7 +246,7 @@ export function UnlockScreen() {
           <Labeled label="Password">
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </Labeled>
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(selected.name)}-unlocked.pdf`} />
         </>
       )}
       <RunButton busy={busy}>Remove password</RunButton>

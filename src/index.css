@@ -43,12 +43,12 @@
   input[type="number"],
   select,
   textarea {
-    @apply rounded-lg border border-line bg-surface px-3 py-2 text-sm text-body outline-none transition;
+    @apply rounded-lg border border-line bg-white px-3 py-2 text-sm text-body outline-none transition;
   }
   input:focus,
   select:focus,
   textarea:focus {
-    @apply border-ink/40;
+    @apply border-ink;
   }
   fieldset {
     @apply flex flex-wrap gap-4 rounded-lg border border-line bg-surface p-4 text-sm;
@@ -75,8 +75,14 @@
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-[13px] text-body;
   }
-  .trust-tile {
-    @apply flex flex-col gap-1 rounded-lg border border-line bg-surface p-4;
+  .banner {
+    @apply rounded-2xl bg-ink p-6 sm:p-10;
+  }
+  .banner .hero-title {
+    @apply text-bone sm:text-8xl;
+  }
+  .banner .chip {
+    @apply border-white/15 bg-white/5 text-white/70;
   }
   .tool-search {
     @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 pl-9 text-sm text-body outline-none transition;
@@ -91,7 +97,7 @@
     @apply w-full px-4 py-8 sm:px-6 lg:px-10;
   }
   .tool {
-    @apply mt-4 space-y-4;
+    @apply mt-4 space-y-4 rounded-xl border border-line bg-surface p-4 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)];
   }
   .error {
     @apply rounded-lg bg-errbg px-4 py-3 text-sm text-errtx;

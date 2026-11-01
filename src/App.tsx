@@ -81,58 +81,59 @@ function ToolList() {
   )
   return (
     <main className="list">
-      <motion.div {...heroMotion(0)}>
+      <motion.div {...heroMotion(0)} className="banner">
         <div className="flex items-center justify-between">
-          <span className="chip !text-ink" style={{ fontWeight: 600 }}>
+          <span className="chip !bg-white/10 !text-white" style={{ fontWeight: 600 }}>
             <File size={13} weight="bold" /> padf
           </span>
-          <span className="chip text-muted">
+          <span className="chip">
             <WifiSlash size={13} weight="bold" /> Offline after load
           </span>
         </div>
         <h1 className="hero-title mt-6">
-          padf<span className="text-[#1F6C9F]">.</span>
+          padf<span className="text-[#8FC3E8]">.</span>
         </h1>
-        <p className="mt-3 max-w-xl text-lg text-body" style={{ lineHeight: 1.4 }}>
+        <p className="mt-4 max-w-xl text-lg text-white" style={{ lineHeight: 1.4 }}>
           PDF tools that never leave your device.
         </p>
-        <p className="mt-2 max-w-xl text-sm text-muted">
+        <p className="mt-2 max-w-xl text-sm text-white/60">
           Merge, split, compress, protect and {TOOLS.length - 6} more operations, all in your
           browser. No upload, no account, no queue.
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2">
           <span className="chip">
-            <ShieldCheck size={13} weight="bold" className="text-[#346538]" /> No upload
+            <ShieldCheck size={13} weight="bold" className="text-[#9DC79D]" /> No upload
           </span>
           <span className="chip">
-            <WifiSlash size={13} weight="bold" className="text-[#1F6C9F]" /> Works offline
+            <WifiSlash size={13} weight="bold" className="text-[#8FC3E8]" /> Works offline
           </span>
           <span className="chip">
-            <Lightning size={13} weight="bold" className="text-[#956400]" /> Instant results
+            <Lightning size={13} weight="bold" className="text-[#D8C289]" /> Instant results
           </span>
           <span className="chip">
-            <LockKey size={13} weight="bold" className="text-[#9F2F2D]" /> AES-256 protect
+            <LockKey size={13} weight="bold" className="text-[#DDA09E]" /> AES-256 protect
           </span>
         </div>
+        <div className="mt-6 grid gap-4 border-t border-white/10 pt-6 sm:grid-cols-3">
+          {(
+            [
+              { icon: ShieldCheck, cls: 'text-[#8FC3E8]', title: 'Confidential by design', desc: 'Processing happens on your device. Files never touch a server.' },
+              { icon: WifiSlash, cls: 'text-[#9DC79D]', title: 'Airplane-mode proof', desc: 'The app is fully self-contained. Load it once, use it offline.' },
+              { icon: Lightning, cls: 'text-[#D8C289]', title: 'No queue, no limits', desc: 'No rounds of upload waits. Results in the time it takes to compute.' },
+            ] as const
+          ).map((tile) => (
+            <div key={tile.title} className="flex gap-3">
+              <span className={`mt-0.5 shrink-0 ${tile.cls}`}>
+                <tile.icon size={20} weight="bold" />
+              </span>
+              <span>
+                <span className="block text-sm font-medium text-white">{tile.title}</span>
+                <span className="block text-[12.5px] leading-snug text-white/50">{tile.desc}</span>
+              </span>
+            </div>
+          ))}
+        </div>
       </motion.div>
-
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
-        {(
-          [
-            { icon: ShieldCheck, cls: 'bg-[#E1F3FE] text-[#1F6C9F]', title: 'Confidential by design', desc: 'Processing happens on your device. Files never touch a server.' },
-            { icon: WifiSlash, cls: 'bg-[#EDF3EC] text-[#346538]', title: 'Airplane-mode proof', desc: 'The app is fully self-contained. Load it once, use it offline.' },
-            { icon: Lightning, cls: 'bg-[#FBF3DB] text-[#956400]', title: 'No queue, no limits', desc: 'No rounds of upload waits. Results in the time it takes to compute.' },
-          ] as const
-        ).map((tile, i) => (
-          <motion.div key={tile.title} {...heroMotion(0.08 + i * 0.06)} className="trust-tile">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tile.cls}`}>
-              <tile.icon size={18} weight="bold" />
-            </span>
-            <span className="mt-1 text-sm font-medium text-ink">{tile.title}</span>
-            <span className="text-[12.5px] leading-snug text-muted">{tile.desc}</span>
-          </motion.div>
-        ))}
-      </div>
 
       <div className="relative mt-8">
         <MagnifyingGlass size={16} weight="bold" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />

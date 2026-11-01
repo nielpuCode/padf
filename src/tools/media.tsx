@@ -20,7 +20,7 @@ export function ImagesToPdfScreen() {
       const bad = files.find((f) => !detectImageMime(f.bytes))
       if (bad) throw new Error(`${bad.name}: only JPG and PNG supported. iPhone photos are HEIC; convert first.`)
       const doc = await imagesToPdf(files.map((f) => ({ name: f.name, bytes: f.bytes })), { mode })
-      return [{ name: finalName(outName, 'images.pdf'), data: await savePdf(doc) }]
+      return [{ name: finalName(outName, files.length ? `${stripExtension(files[0].name)}-images.pdf` : 'images.pdf'), data: await savePdf(doc) }]
     })
   }
   return (
@@ -34,7 +34,7 @@ export function ImagesToPdfScreen() {
           </select>
         </Labeled>
       )}
-      {files.length > 0 && <OutputNameField value={outName} onChange={setOutName} />}
+      {files.length > 0 && <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(files[0].name)}-images.pdf`} />}
       <RunButton busy={busy}>Create PDF</RunButton>
       <ErrorBox error={error} />
       <ResultBox result={result} />
@@ -98,10 +98,10 @@ export function PdfToImagesScreen() {
           </Labeled>
           <Labeled label="DPI"><input type="number" min="36" max="600" value={dpi} onChange={(e) => setDpi(Number(e.target.value))} /></Labeled>
           <Labeled label="Pages (empty = all)"><input type="text" value={spec} onChange={(e) => setSpec(e.target.value)} placeholder="1-3,7" /></Labeled>
-          <OutputNameField value={outName} onChange={setOutName} label="ZIP name for multi-page output" />
+          <OutputNameField value={outName} onChange={setOutName} label="ZIP name for multi-page output" suggest={zipName} />
         </>
       )}
-      <RunButton busy={busy}>{busy ? 'Rendering…' : 'Convert'}</RunButton>
+      <RunButton busy={busy}>{busy ? 'Rendering...' : 'Convert'}</RunButton>
       <ErrorBox error={error} />
       <ResultBox result={result} zipName={zipName} />
     </form>
@@ -138,7 +138,7 @@ export function BasicCompressScreen() {
               {files.map((f, i) => <option key={i} value={i}>{f.name}</option>)}
             </select>
           </Labeled>
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={`${stripExtension(selected.name)}-recompressed.pdf`} />
         </>
       )}
       <RunButton busy={busy}>Recompress</RunButton>

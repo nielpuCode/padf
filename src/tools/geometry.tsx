@@ -31,23 +31,13 @@ function PickOne({ files, setFiles, fileIdx, setFileIdx, accept = '.pdf' }: {
   )
 }
 
-async function runForFile(
-  selected: LoadedFile | undefined,
-  op: (bytes: Uint8Array) => Promise<{ data: Uint8Array; extra?: string }>,
-): Promise<{ name: string; data: Uint8Array }[]> {
-  if (!selected) throw new Error('Choose a file')
-  const { data, extra } = await op(selected.bytes)
-  const suffix = extra ?? ''
-  return [{ name: `${stripExtension(selected.name)}${suffix}.pdf`, data }]
-}
-
 // ---------- generic wrapper for one-file-with-range tools ----------
 export function OneFileRangeScreen(props: {
-  title: string
   hint?: string
   accept?: string
   form: React.ReactNode
-  run: (bytes: Uint8Array, password: string | undefined) => Promise<{ data: Uint8Array; extra?: string }>
+  suffix: string
+  run: (bytes: Uint8Array, password: string | undefined) => Promise<Uint8Array | { data: Uint8Array }>
 }) {
   const [files, setFiles] = useState<LoadedFile[]>([])
   const [fileIdx, setFileIdx] = useState(0)
@@ -55,12 +45,16 @@ export function OneFileRangeScreen(props: {
   const [outName, setOutName] = useState('')
   const { result, error, busy, run } = useResult()
   const selected = files[fileIdx]
+  const suggest = selected ? `${stripExtension(selected.name)}${props.suffix}.pdf` : undefined
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const pw = password || undefined
+    const fallback = selected ? `${stripExtension(selected.name)}${props.suffix}.pdf` : 'output.pdf'
     run(async () => {
-      const out = await runForFile(selected, (bytes) => props.run(bytes, pw))
-      return [{ ...out[0], name: finalName(outName, out[0].name) }]
+      if (!selected) throw new Error('Choose a file')
+      const r = await props.run(selected.bytes, pw)
+      const data = 'data' in r ? r.data : r
+      return [{ name: finalName(outName, fallback), data }]
     })
   }
   return (
@@ -73,7 +67,7 @@ export function OneFileRangeScreen(props: {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </Labeled>
           {props.form}
-          <OutputNameField value={outName} onChange={setOutName} />
+          <OutputNameField value={outName} onChange={setOutName} suggest={suggest} />
         </>
       )}
       <RunButton busy={busy}>Run</RunButton>
@@ -87,9 +81,9 @@ export function ExtractScreen() {
   const [spec, setSpec] = useState('')
   return (
     <OneFileRangeScreen
-      title="Extract pages"
+      suffix="-extracted"
       form={<Labeled label="Pages to extract (e.g. 1-3,5,10)"><input type="text" required value={spec} onChange={(e) => setSpec(e.target.value)} /></Labeled>}
-      run={(bytes, pw) => extractPages(bytes, spec, pw).then((d) => savePdf(d).then((data) => ({ data, extra: '-extracted' })))}
+      run={(bytes, pw) => extractPages(bytes, spec, pw).then((d) => savePdf(d))}
     />
   )
 }
@@ -98,9 +92,9 @@ export function DeleteScreen() {
   const [spec, setSpec] = useState('')
   return (
     <OneFileRangeScreen
-      title="Delete pages"
+      suffix="-deleted"
       form={<Labeled label="Pages to delete (e.g. 2,7-9)"><input type="text" required value={spec} onChange={(e) => setSpec(e.target.value)} /></Labeled>}
-      run={(bytes, pw) => deletePages(bytes, spec, pw).then((d) => savePdf(d).then((data) => ({ data, extra: '-deleted' })))}
+      run={(bytes, pw) => deletePages(bytes, spec, pw).then((d) => savePdf(d))}
     />
   )
 }
@@ -109,7 +103,7 @@ export function ReorderScreen() {
   const [order, setOrder] = useState('')
   return (
     <OneFileRangeScreen
-      title="Reorder pages"
+      suffix="-reordered"
       hint="List every page number exactly once, comma separated (e.g. 4,1,2,3). Type - to reverse all pages."
       form={<Labeled label="New order"><input type="text" required value={order} onChange={(e) => setOrder(e.target.value)} /></Labeled>}
       run={async (bytes, pw) => {
@@ -122,7 +116,7 @@ export function ReorderScreen() {
           if (parsed.some((n) => Number.isNaN(n))) throw new Error('Use page numbers like 4,1,2,3')
         }
         const doc = await reorderPages(bytes, parsed, pw)
-        return { data: await savePdf(doc), extra: '-reordered' }
+        return { data: await savePdf(doc) }
       }}
     />
   )
@@ -133,7 +127,7 @@ export function RotateScreen() {
   const [delta, setDelta] = useState(90)
   return (
     <OneFileRangeScreen
-      title="Rotate pages"
+      suffix="-rotated"
       hint="Leave range empty to rotate all pages."
       form={(
         <>
@@ -147,7 +141,7 @@ export function RotateScreen() {
           </Labeled>
         </>
       )}
-      run={(bytes, pw) => rotatePages(bytes, spec || undefined, (delta as 90 | 180 | 270), pw).then((d) => savePdf(d).then((data) => ({ data, extra: '-rotated' })))}
+      run={(bytes, pw) => rotatePages(bytes, spec || undefined, (delta as 90 | 180 | 270), pw).then((d) => savePdf(d))}
     />
   )
 }
@@ -162,7 +156,7 @@ export function CropScreen() {
   )
   return (
     <OneFileRangeScreen
-      title="Crop pages"
+      suffix="-cropped"
       hint="Plain PDF coordinates in points (1 pt = 1/72 inch). A4 is 595x842 pt."
       form={(
         <>
@@ -173,7 +167,7 @@ export function CropScreen() {
           {num('left', 'Left margin')}
         </>
       )}
-      run={(bytes, pw) => cropPages(bytes, spec || undefined, m, pw).then((d) => savePdf(d).then((data) => ({ data, extra: '-cropped' })))}
+      run={(bytes, pw) => cropPages(bytes, spec || undefined, m, pw).then((d) => savePdf(d))}
     />
   )
 }
@@ -190,7 +184,7 @@ export function ResizeScreen() {
   const [size, setSize] = useState('A4')
   return (
     <OneFileRangeScreen
-      title="Resize pages"
+      suffix="-resized"
       hint="Scales content to fit the target paper size and centers it. Custom sizes need points."
       form={(
         <>
@@ -205,7 +199,7 @@ export function ResizeScreen() {
       run={(bytes, pw) => {
         const t = paperSizes[size]
         if (!t) throw new Error('Pick a size')
-        return resizePages(bytes, spec || undefined, t[0], t[1], pw).then((d) => savePdf(d).then((data) => ({ data, extra: '-resized' })))
+        return resizePages(bytes, spec || undefined, t[0], t[1], pw).then((d) => savePdf(d))
       }}
     />
   )

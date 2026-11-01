@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import type { ReactNode } from 'react'
+import { CaretUp, CaretDown, X, DownloadSimple } from '@phosphor-icons/react'
 import { downloadBlob, zipFiles, formatBytes, sanitizeFilename } from '../lib/zip'
 
 export type LoadedFile = { name: string; bytes: Uint8Array; size: number }
@@ -35,14 +36,20 @@ export function useResult() {
 
 // ---------- output naming ----------
 
-export function OutputNameField({ value, onChange, label = 'Output file name (optional)' }: {
+export function OutputNameField({ value, onChange, label = 'Output file name', suggest }: {
   value: string
   onChange: (v: string) => void
   label?: string
+  suggest?: string
 }) {
   return (
-    <Labeled label={`${label} (leave empty for the auto name)`}>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="auto" />
+    <Labeled label={`${label} (prefilled with the default, edit freely)`}>
+      <input
+        type="text"
+        value={value || suggest || ''}
+        placeholder="auto"
+        onChange={(e) => onChange(e.target.value)}
+      />
     </Labeled>
   )
 }
@@ -80,9 +87,9 @@ export function ResultBox({ result, zipName = 'output.zip' }: { result: { name: 
       </ol>
       <button
         onClick={download}
-        className="mt-2 inline-flex items-center rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#333] active:scale-[0.98]"
+        className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-oktx/30 bg-oktx px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 active:scale-[0.98]"
       >
-        Download
+        <DownloadSimple size={15} weight="bold" /> Download
       </button>
     </div>
   )
@@ -116,26 +123,29 @@ export function Files({ files, onChange, accept }: { files: LoadedFile[]; onChan
               <span className="flex shrink-0 gap-1">
                 <button
                   type="button"
+                  aria-label="Move up"
                   onClick={() => onChange([...files.slice(0, i - 1), files[i], files[i - 1], ...files.slice(i + 1)])}
                   disabled={i === 0}
-                  className="rounded-md border border-line px-2 py-0.5 text-xs text-body transition hover:bg-black/[0.04] active:scale-[0.98] disabled:opacity-40"
+                  className="rounded-md border border-line p-1 text-body transition hover:bg-black/[0.04] active:scale-[0.95] disabled:opacity-40"
                 >
-                  up
-                </button>{' '}
+                  <CaretUp size={13} weight="bold" />
+                </button>
                 <button
                   type="button"
+                  aria-label="Move down"
                   onClick={() => onChange([...files.slice(0, i + 1), files[i + 1], files[i], ...files.slice(i + 2)])}
                   disabled={i === files.length - 1}
-                  className="rounded-md border border-line px-2 py-0.5 text-xs text-body transition hover:bg-black/[0.04] active:scale-[0.98] disabled:opacity-40"
+                  className="rounded-md border border-line p-1 text-body transition hover:bg-black/[0.04] active:scale-[0.95] disabled:opacity-40"
                 >
-                  down
-                </button>{' '}
+                  <CaretDown size={13} weight="bold" />
+                </button>
                 <button
                   type="button"
+                  aria-label="Remove"
                   onClick={() => onChange(files.filter((_, j) => j !== i))}
-                  className="rounded-md border border-line px-2 py-0.5 text-xs text-errtx transition hover:bg-black/[0.04] active:scale-[0.98]"
+                  className="rounded-md border border-line p-1 text-errtx transition hover:bg-black/[0.04] active:scale-[0.95]"
                 >
-                  remove
+                  <X size={13} weight="bold" />
                 </button>
               </span>
             </li>
@@ -149,7 +159,7 @@ export function Files({ files, onChange, accept }: { files: LoadedFile[]; onChan
 export function Labeled({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="field block">
-      <span className="mb-1 block text-[13px] text-muted">{label}</span>
+      <span className="mb-1 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">{label}</span>
       {children}
     </label>
   )
@@ -160,9 +170,9 @@ export function RunButton({ busy, children }: { busy: boolean; children: ReactNo
     <button
       type="submit"
       disabled={busy}
-      className="inline-flex w-full items-center justify-center rounded-md bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#333] active:scale-[0.98] disabled:cursor-wait disabled:opacity-50 sm:w-auto"
+      className="mt-1 inline-flex w-full items-center justify-center rounded-lg bg-ink px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#2b2b2b] active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
     >
-      {busy ? 'Working…' : children}
+      {busy ? 'Working...' : children}
     </button>
   )
 }
