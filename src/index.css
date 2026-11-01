@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bone: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-ink: #111111;
+  --color-body: #2f3437;
+  --color-muted: #787774;
+  --color-line: #eaeaea;
+  --color-errbg: #fdebec;
+  --color-errtx: #9f2f2d;
+  --color-okbg: #edf3ec;
+  --color-oktx: #346538;
+  --font-sans: "Geist Sans", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bone font-sans text-body antialiased;
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-semibold tracking-tight text-ink;
+    letter-spacing: -0.02em;
+  }
+  h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-lg;
+  }
+  h3 {
+    @apply text-xs font-medium tracking-[0.08em] text-muted uppercase;
+  }
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    @apply rounded-lg border border-line bg-surface px-3 py-2 text-sm text-body outline-none transition;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    @apply border-ink/40;
+  }
+  fieldset {
+    @apply flex flex-wrap gap-4 rounded-lg border border-line bg-surface p-4 text-sm;
+  }
+  legend {
+    @apply px-1 text-xs tracking-wider text-muted uppercase;
+  }
+  fieldset label {
+    @apply inline-flex items-center gap-2;
+  }
+}
+
+@layer components {
+  .list {
+    @apply w-full px-4 py-10 sm:px-6 sm:py-14 lg:px-10;
+  }
+  .tagline {
+    @apply mt-1 text-sm text-muted;
+  }
+  .hint {
+    @apply text-sm text-muted;
+  }
+  .tool-wrap {
+    @apply w-full px-4 py-8 sm:px-6 lg:px-10;
+  }
+  .tool {
+    @apply mt-4 space-y-4;
+  }
+  .error {
+    @apply rounded-lg bg-errbg px-4 py-3 text-sm text-errtx;
+  }
+  .result {
+    @apply rounded-lg bg-okbg px-4 py-3 text-sm text-oktx;
+  }
+  .result ol {
+    @apply mt-2 ml-4 list-decimal space-y-0.5;
+  }
+  .fade-in {
+    animation: fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
+  }
+}

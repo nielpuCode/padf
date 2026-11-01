@@ -53,7 +53,12 @@ export function ResultBox({ result }: { result: { name: string; data: Uint8Array
           <li key={r.name}>{r.name} ({formatBytes(r.data.byteLength)})</li>
         ))}
       </ol>
-      <button onClick={download}>Download</button>
+      <button
+        onClick={download}
+        className="mt-2 inline-flex items-center rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#333] active:scale-[0.98]"
+      >
+        Download
+      </button>
     </div>
   )
 }
@@ -71,30 +76,68 @@ export function Files({ files, onChange, accept }: { files: LoadedFile[]; onChan
   }
   return (
     <div>
-      <input type="file" accept={accept} multiple onChange={(e) => add(e.target.files)} />
-      <ul>
-        {files.map((f, i) => (
-          <li key={i}>
-            {f.name} ({formatBytes(f.size)}){' '}
-            <button onClick={() => onChange([...files.slice(0, i - 1), files[i], files[i - 1], ...files.slice(i + 1)])} disabled={i === 0}>up</button>{' '}
-            <button onClick={() => onChange([...files.slice(0, i + 1), files[i + 1], files[i], ...files.slice(i + 2)])} disabled={i === files.length - 1}>down</button>{' '}
-            <button onClick={() => onChange(files.filter((_, j) => j !== i))}>remove</button>
-          </li>
-        ))}
-      </ul>
+      <input
+        type="file"
+        accept={accept}
+        multiple
+        onChange={(e) => add(e.target.files)}
+        className="w-full cursor-pointer rounded-lg border border-line bg-surface px-3 py-2 text-sm text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-[#333]"
+      />
+      {files.length > 0 && (
+        <ul className="mt-2 divide-y divide-line rounded-lg border border-line bg-surface">
+          {files.map((f, i) => (
+            <li key={i} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
+              <span className="min-w-0 flex-1 truncate text-body">{f.name} <span className="text-muted">({formatBytes(f.size)})</span></span>
+              <span className="flex shrink-0 gap-1">
+                <button
+                  type="button"
+                  onClick={() => onChange([...files.slice(0, i - 1), files[i], files[i - 1], ...files.slice(i + 1)])}
+                  disabled={i === 0}
+                  className="rounded-md border border-line px-2 py-0.5 text-xs text-body transition hover:bg-black/[0.04] active:scale-[0.98] disabled:opacity-40"
+                >
+                  up
+                </button>{' '}
+                <button
+                  type="button"
+                  onClick={() => onChange([...files.slice(0, i + 1), files[i + 1], files[i], ...files.slice(i + 2)])}
+                  disabled={i === files.length - 1}
+                  className="rounded-md border border-line px-2 py-0.5 text-xs text-body transition hover:bg-black/[0.04] active:scale-[0.98] disabled:opacity-40"
+                >
+                  down
+                </button>{' '}
+                <button
+                  type="button"
+                  onClick={() => onChange(files.filter((_, j) => j !== i))}
+                  className="rounded-md border border-line px-2 py-0.5 text-xs text-errtx transition hover:bg-black/[0.04] active:scale-[0.98]"
+                >
+                  remove
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
 
 export function Labeled({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="field">
-      <span>{label}</span>
+    <label className="field block">
+      <span className="mb-1 block text-[13px] text-muted">{label}</span>
       {children}
     </label>
   )
 }
 
 export function RunButton({ busy, children }: { busy: boolean; children: ReactNode }) {
-  return <button type="submit" disabled={busy}>{busy ? 'Working…' : children}</button>
+  return (
+    <button
+      type="submit"
+      disabled={busy}
+      className="inline-flex w-full items-center justify-center rounded-md bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#333] active:scale-[0.98] disabled:cursor-wait disabled:opacity-50 sm:w-auto"
+    >
+      {busy ? 'Working…' : children}
+    </button>
+  )
 }

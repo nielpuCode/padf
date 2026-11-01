@@ -50,19 +50,26 @@ function currentTool(): string | null {
 function ToolList() {
   const groups = [...new Set(TOOLS.map((t) => t.group))]
   return (
-    <main className="list">
+    <main className="list fade-in">
       <h1>padf</h1>
       <p className="tagline">PDF tools that never leave your device.</p>
-      <p className="hint">
+      <p className="hint mb-8">
         All processing happens in your browser. Files never leave your device.
         After this page loads, it works offline.
       </p>
       {groups.map((g) => (
-        <section key={g}>
-          <h3>{g}</h3>
-          <ul>
+        <section key={g} className="mb-8">
+          <h3 className="mb-2">{g}</h3>
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {TOOLS.filter((t) => t.group === g).map((t) => (
-              <li key={t.id}><a href={`#/${t.id}`}>{t.name}</a></li>
+              <li key={t.id}>
+                <a
+                  href={`#/${t.id}`}
+                  className="block rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium text-body transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] active:scale-[0.99]"
+                >
+                  {t.name}
+                </a>
+              </li>
             ))}
           </ul>
         </section>
@@ -82,8 +89,8 @@ export default function App() {
   if (!active) return <ToolList />
   const Screen = SCREENS[active]
   return (
-    <main className="tool-wrap">
-      <a href="#/">&larr; All tools</a>
+    <main className="tool-wrap fade-in">
+      <a href="#/" className="text-sm text-muted transition hover:text-ink">&larr; All tools</a>
       <Screen key={active} />
     </main>
   )
