@@ -5,6 +5,7 @@ import {
   Stack, Scissors, ArrowsIn, Broom, LockKey, LockKeyOpen, Export, TrashSimple,
   ArrowsDownUp, ArrowClockwise, Crop, FrameCorners, PlusSquare, SquaresFour,
   BookOpen, ImageSquare, FileImage, Hash, Rows, Drop,
+  ShieldCheck, WifiSlash, Lightning, MagnifyingGlass, File,
 } from '@phosphor-icons/react'
 import { MergeScreen, SplitScreen, CompressScreen, PasswordScreen, UnlockScreen } from './tools/tier0'
 import { ExtractScreen, DeleteScreen, ReorderScreen, RotateScreen, CropScreen, ResizeScreen } from './tools/geometry'
@@ -63,18 +64,87 @@ function currentTool(): string | null {
 const enter = { opacity: 0, y: 12 }
 const show = { opacity: 1, y: 0 }
 
+const heroMotion = (delay: number) => ({
+  initial: enter,
+  animate: show,
+  transition: { delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
+})
+
 function ToolList() {
-  const groups = [...new Set(TOOLS.map((t) => t.group))] as Group[]
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const visible = (t: Tool) => !q || `${t.name} ${t.desc}`.toLowerCase().includes(q)
+  const groups = ([...new Set(TOOLS.map((t) => t.group))] as Group[]).filter((g) =>
+    TOOLS.some((t) => t.group === g && visible(t)),
+  )
   return (
     <main className="list">
-      <h1>padf</h1>
-      <p className="tagline">PDF tools that never leave your device.</p>
-      <p className="hint mb-8">
-        All processing happens in your browser. Files never leave your device.
-        After this page loads, it works offline.
-      </p>
+      <motion.div {...heroMotion(0)}>
+        <div className="flex items-center justify-between">
+          <span className="chip !text-ink" style={{ fontWeight: 600 }}>
+            <File size={13} weight="bold" /> padf
+          </span>
+          <span className="chip text-muted">
+            <WifiSlash size={13} weight="bold" /> Offline after load
+          </span>
+        </div>
+        <h1 className="hero-title mt-6">
+          padf<span className="text-[#1F6C9F]">.</span>
+        </h1>
+        <p className="mt-3 max-w-xl text-lg text-body" style={{ lineHeight: 1.4 }}>
+          PDF tools that never leave your device.
+        </p>
+        <p className="mt-2 max-w-xl text-sm text-muted">
+          Merge, split, compress, protect and {TOOLS.length - 6} more operations — everything runs in
+          your browser. No upload, no account, no queue.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="chip">
+            <ShieldCheck size={13} weight="bold" className="text-[#346538]" /> No upload
+          </span>
+          <span className="chip">
+            <WifiSlash size={13} weight="bold" className="text-[#1F6C9F]" /> Works offline
+          </span>
+          <span className="chip">
+            <Lightning size={13} weight="bold" className="text-[#956400]" /> Instant results
+          </span>
+          <span className="chip">
+            <LockKey size={13} weight="bold" className="text-[#9F2F2D]" /> AES-256 protect
+          </span>
+        </div>
+      </motion.div>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        {(
+          [
+            { icon: ShieldCheck, cls: 'bg-[#E1F3FE] text-[#1F6C9F]', title: 'Confidential by design', desc: 'Processing happens on your device. Files never touch a server.' },
+            { icon: WifiSlash, cls: 'bg-[#EDF3EC] text-[#346538]', title: 'Airplane-mode proof', desc: 'The app is fully self-contained. Load it once, use it offline.' },
+            { icon: Lightning, cls: 'bg-[#FBF3DB] text-[#956400]', title: 'No queue, no limits', desc: 'No rounds of upload waits. Results in the time it takes to compute.' },
+          ] as const
+        ).map((tile, i) => (
+          <motion.div key={tile.title} {...heroMotion(0.08 + i * 0.06)} className="trust-tile">
+            <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tile.cls}`}>
+              <tile.icon size={18} weight="bold" />
+            </span>
+            <span className="mt-1 text-sm font-medium text-ink">{tile.title}</span>
+            <span className="text-[12.5px] leading-snug text-muted">{tile.desc}</span>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="relative mt-8">
+        <MagnifyingGlass size={16} weight="bold" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+        <input
+          type="text"
+          className="tool-search"
+          placeholder={`Search ${TOOLS.length} tools…`}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+
       {groups.map((g) => (
-        <section key={g} className="mb-8">
+        <section key={g} className="mb-8 mt-8">
           <h3 className="mb-2 flex items-center gap-2">
             <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-[0.06em] uppercase ${GROUP_LOOK[g].split(' ')[0]} ${GROUP_LOOK[g].split(' ')[1]}`}>
               {g.split(' — ')[1]}
@@ -82,7 +152,7 @@ function ToolList() {
             {g.split(' — ')[0]}
           </h3>
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {TOOLS.filter((t) => t.group === g).map((t, i) => (
+            {TOOLS.filter((t) => t.group === g && visible(t)).map((t, i) => (
               <motion.li
                 key={t.id}
                 initial={enter}
@@ -106,6 +176,7 @@ function ToolList() {
           </ul>
         </section>
       ))}
+      {q && groups.length === 0 && <p className="hint mt-8">No tool matches “{query}”.</p>}
     </main>
   )
 }

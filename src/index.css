@@ -12,6 +12,7 @@
   --color-okbg: #edf3ec;
   --color-oktx: #346538;
   --font-sans: "Geist Sans", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Newsreader", "Iowan Old Style", Georgia, serif;
 }
 
 @layer base {
@@ -62,7 +63,23 @@
 
 @layer components {
   .list {
-    @apply w-full px-4 py-10 sm:px-6 sm:py-14 lg:px-10;
+    @apply w-full px-4 py-8 sm:px-6 sm:py-10 lg:px-10;
+  }
+  .hero-title {
+    @apply text-6xl text-ink sm:text-7xl;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-[13px] text-body;
+  }
+  .trust-tile {
+    @apply flex flex-col gap-1 rounded-lg border border-line bg-surface p-4;
+  }
+  .tool-search {
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 pl-9 text-sm text-body outline-none transition;
   }
   .tagline {
     @apply mt-1 text-sm text-muted;
